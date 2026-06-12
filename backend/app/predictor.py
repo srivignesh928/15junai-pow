@@ -128,55 +128,69 @@ def calculate_dynamic_profit_margin(predicted_price: float, payload: dict) -> fl
     Calculate dynamic profit margin based on vehicle characteristics.
     
     Base margin: 10%
-    Adjustments based on:
-    - Premium brand (+5%)
-    - Car age (+0.5% per year after 5 years)
-    - Price range (luxury cars +3-5%)
-    - Damage condition (+2-5%)
+    Adjustments based on real-world risk factors:
+    - Brand type (luxury/mass/budget)
+    - Price range (expensive = slower sale)
+    - Car age (older = more risk)
+    - Mileage (high km = wear & tear)
+    - Damage condition (repair uncertainty)
+    - Ownership history (multiple owners = harder to sell)
     
     Returns margin as decimal (e.g., 0.12 for 12%)
+    Range: 5% to 25%
     """
     base_margin = 0.10  # 10% base
     
-    # 1. Premium brand adjustment
+    # 1. Brand Type Adjustment
     if payload.get("premium_brand", 0) == 1:
-        base_margin += 0.05  # +5% for luxury brands
+        base_margin += 0.05  # +5% for luxury brands (slow sale, high risk)
     
-    # 2. Price range adjustment
+    # 2. Price Range Adjustment
     if predicted_price > 2000000:  # > 20 lakhs
-        base_margin += 0.05  # +5% for expensive cars
+        base_margin += 0.05  # +5% for expensive cars (fewer buyers)
     elif predicted_price > 1000000:  # > 10 lakhs
-        base_margin += 0.03  # +3% for mid-range
+        base_margin += 0.03  # +3% for mid-range premium
     elif predicted_price < 300000:  # < 3 lakhs
         base_margin -= 0.02  # -2% for budget cars (fast turnover)
     
-    # 3. Car age adjustment (older = more risk)
+    # 3. Car Age Adjustment
     car_age = payload.get("car_age", 0)
-    if car_age > 7:
-        base_margin += 0.02  # +2% for old cars
-    elif car_age > 10:
-        base_margin += 0.05  # +5% for very old cars
+    if car_age > 10:
+        base_margin += 0.05  # +5% for very old cars (mechanical issues)
+    elif car_age > 7:
+        base_margin += 0.02  # +2% for old cars (maintenance needed)
     elif car_age < 3:
-        base_margin -= 0.02  # -2% for newer cars
+        base_margin -= 0.02  # -2% for newer cars (low risk, high demand)
     
-    # 4. Damage adjustment
+    # 4. Mileage Adjustment
+    km = payload.get("km", 0)
+    if km > 100000:  # > 1 lakh km
+        base_margin += 0.02  # +2% for high mileage (heavy wear)
+    
+    # 5. Damage Condition Adjustment
     damage_desc = payload.get("damage_description", "")
     if damage_desc:
         damage_lower = damage_desc.lower()
-        if any(word in damage_lower for word in ["major", "accident", "engine", "transmission"]):
-            base_margin += 0.05  # +5% for major damage
-        elif any(word in damage_lower for word in ["broken", "collision", "crack"]):
-            base_margin += 0.03  # +3% for medium damage
-        elif any(word in damage_lower for word in ["scratch", "dent", "minor"]):
-            base_margin += 0.01  # +1% for minor damage
+        if any(word in damage_lower for word in ["major", "accident", "engine", "transmission", "frame", "flood", "fire"]):
+            base_margin += 0.05  # +5% for major damage (high uncertainty)
+        elif any(word in damage_lower for word in ["broken", "collision", "crack", "door", "window", "bumper"]):
+            base_margin += 0.03  # +3% for medium damage (known repairs)
+        elif any(word in damage_lower for word in ["scratch", "dent", "minor", "scuff", "chip"]):
+            base_margin += 0.01  # +1% for minor damage (small repairs)
     
-    # 5. Mileage adjustment (high km = more risk)
-    km = payload.get("km", 0)
-    if km > 100000:  # > 1 lakh km
-        base_margin += 0.02  # +2% for high mileage
+    # 6. Ownership History Adjustment
+    owner_type = payload.get("owner_type", "").lower()
+    if "second" in owner_type:
+        base_margin += 0.01  # +1% for second owner
+    elif "third" in owner_type:
+        base_margin += 0.02  # +2% for third owner
+    elif "fourth" in owner_type or "4" in owner_type:
+        base_margin += 0.03  # +3% for fourth+ owner
     
     # Cap the margin between 5% and 25%
-    return min(max(base_margin, 0.05), 0.25)
+    final_margin = min(max(base_margin, 0.05), 0.25)
+    
+    return final_margin
 
 
 def calculate_transaction_price(predicted_price: float, damage_cost: float, transaction_type: str, payload: dict = None) -> dict:

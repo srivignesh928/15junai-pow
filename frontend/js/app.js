@@ -722,11 +722,19 @@ const submitForm = async (event) => {
         
         // Show/hide profit margin row
         const profitRow = document.getElementById('profitRow');
+        const marginPercentRow = document.getElementById('marginPercentRow');
         if (transaction_type === 'buying_resale' && result.profit_margin) {
             profitRow.style.display = 'flex';
+            marginPercentRow.style.display = 'flex';
             document.getElementById('profitMargin').textContent = `₹ ${Number(result.profit_margin).toLocaleString('en-IN')}`;
+            
+            // Calculate and display margin percentage
+            const marketValue = result.predicted_price - result.damage_cost;
+            const marginPercent = (result.profit_margin / marketValue * 100).toFixed(1);
+            document.getElementById('marginPercent').textContent = `${marginPercent}%`;
         } else {
             profitRow.style.display = 'none';
+            marginPercentRow.style.display = 'none';
         }
         
         // Show/hide price range row
