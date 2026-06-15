@@ -47,6 +47,18 @@ const damageDescriptionText = document.getElementById('damageDescriptionText');
 const damageIssues = document.getElementById('damageIssues');
 const useDamageDescBtn = document.getElementById('useDamageDescBtn');
 
+// Debug: Check if elements loaded
+console.log('Damage Detection Elements Check:', {
+    damageImageInput: !!damageImageInput,
+    analyzeDamageBtn: !!analyzeDamageBtn,
+    damageResultContainer: !!damageResultContainer,
+    damagePreview: !!damagePreview,
+    damageSeverity: !!damageSeverity,
+    damageDescriptionText: !!damageDescriptionText,
+    damageIssues: !!damageIssues,
+    useDamageDescBtn: !!useDamageDescBtn
+});
+
 let detectedDamageDescription = '';
 
 let historyCache = [];
