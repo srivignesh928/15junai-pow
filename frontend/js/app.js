@@ -46,7 +46,6 @@ const damageSeverity = document.getElementById('damageSeverity');
 const damageDescriptionText = document.getElementById('damageDescriptionText');
 const damageIssues = document.getElementById('damageIssues');
 const useDamageDescBtn = document.getElementById('useDamageDescBtn');
-const damageDescriptionInput = document.getElementById('damage_description');
 
 let detectedDamageDescription = '';
 
@@ -1034,17 +1033,24 @@ modelSearchInput.addEventListener('input', renderModelChoices);
 historySearchInput.addEventListener('input', renderHistory);
 
 // Damage detection event listeners
-damageImageInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files[0]) {
-        analyzeDamageBtn.disabled = false;
-        damageResultContainer.classList.add('hidden');
-    } else {
-        analyzeDamageBtn.disabled = true;
-    }
-});
+if (damageImageInput) {
+    damageImageInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            if (analyzeDamageBtn) analyzeDamageBtn.disabled = false;
+            if (damageResultContainer) damageResultContainer.classList.add('hidden');
+        } else {
+            if (analyzeDamageBtn) analyzeDamageBtn.disabled = true;
+        }
+    });
+}
 
-analyzeDamageBtn.addEventListener('click', analyzeDamageImage);
-useDamageDescBtn.addEventListener('click', useDamageDescription);
+if (analyzeDamageBtn) {
+    analyzeDamageBtn.addEventListener('click', analyzeDamageImage);
+}
+
+if (useDamageDescBtn) {
+    useDamageDescBtn.addEventListener('click', useDamageDescription);
+}
 
 async function analyzeDamageImage() {
     const file = damageImageInput.files[0];
