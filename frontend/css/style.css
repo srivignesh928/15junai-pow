@@ -5,6 +5,10 @@
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     color-scheme: light;
     --bg: #f4f7fb;
@@ -77,8 +81,8 @@ body {
 }
 
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 0.9fr;
+    display: flex;
+    flex-direction: column;
     gap: 24px;
 }
 
@@ -506,10 +510,6 @@ input[readonly] {
 }
 
 @media (max-width: 980px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-
     .form-card form {
         grid-template-columns: 1fr;
     }

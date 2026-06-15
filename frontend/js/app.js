@@ -876,6 +876,14 @@ const submitForm = async (event) => {
         // Generate pricing summary
         generatePricingSummary(result, transaction_type, payload);
         
+        // Scroll to results section
+        setTimeout(() => {
+            document.querySelector('.result-card')?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }, 100);
+        
         await refreshHistory();
     } catch (error) {
         console.error(error);
